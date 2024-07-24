@@ -167,7 +167,8 @@ nextDayBtn.addEventListener('click', () => changeDay(1));
 signInBtn.addEventListener('click', () => {
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
-        .then(() => {
+        .then((result) => {
+            console.log("User signed in:", result.user.displayName);
             loadTasks(); // Load tasks after sign-in
         })
         .catch((error) => {
