@@ -57,11 +57,13 @@ document.addEventListener('DOMContentLoaded', () => {
             subjectTitle.appendChild(addTaskIcon);
             subjectDiv.appendChild(subjectTitle);
 
-            const pendingTasks = tasks[subject.name]?.filter(task => !task.completed) || subject.tasks.map(task => ({ name: task, completed: false }));
-            const completedTasks = tasks[subject.name]?.filter(task => task.completed) || [];
+            const savedTasks = tasks[subject.name] || [];
+            const taskNames = subject.tasks;
 
-            pendingTasks.forEach(task => addTask(subjectDiv, task.name, false, task.completionTime));
-            completedTasks.forEach(task => addTask(subjectDiv, task.name, true, task.completionTime));
+            taskNames.forEach(taskName => {
+                const savedTask = savedTasks.find(task => task.name === taskName);
+                addTask(subjectDiv, taskName, savedTask?.completed || false, savedTask?.completionTime);
+            });
 
             subjectsContainer.appendChild(subjectDiv);
         });
@@ -77,13 +79,13 @@ document.addEventListener('DOMContentLoaded', () => {
         taskCheckbox.type = 'checkbox';
         taskCheckbox.checked = isCompleted;
         taskCheckbox.addEventListener('change', () => {
-            const now = new Date();
-            const completionInfo = isCompleted ? null : `Completed on ${now.toDateString()} at ${now.toLocaleTimeString()}`;
-            taskDiv.dataset.completionTime = completionInfo || null;
-            taskDiv.querySelector('.completed-info')?.remove();
-            if (completionInfo) {
+            if (taskCheckbox.checked) {
+                const now = new Date();
+                const completionInfo = `Completed on ${now.toDateString()} at ${now.toLocaleTimeString()}`;
+                taskDiv.dataset.completionTime = completionInfo;
                 taskDiv.classList.add('completed');
             } else {
+                taskDiv.dataset.completionTime = null;
                 taskDiv.classList.remove('completed');
             }
             saveTasks();
@@ -119,8 +121,9 @@ document.addEventListener('DOMContentLoaded', () => {
         taskDiv.appendChild(removeButton);
         taskDiv.appendChild(completionTimeButton);
 
-        if (completionTime) {
+        if (isCompleted) {
             taskDiv.classList.add('completed');
+            taskDiv.dataset.completionTime = completionTime || '';
         }
 
         subjectDiv.appendChild(taskDiv);
