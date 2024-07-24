@@ -1,4 +1,4 @@
-// Your web app's Firebase configuration
+// Initialize Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyALPWJxAtZ2uKxMAd5A6JNIpG5CStRRv3I",
   authDomain: "targets-3c17d.firebaseapp.com",
@@ -14,7 +14,6 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Define subjects
 const subjects = [
     { name: 'Chemistry', tasks: ['Lec', 'Notes', 'Revision', 'NCERT', 'DPP', 'DPP Analysis', 'Modules'] },
     { name: 'Botany', tasks: ['Lec', 'Notes', 'Revision', 'NCERT', 'DPP', 'DPP Analysis', 'Modules'] },
@@ -36,7 +35,7 @@ function renderDate() {
 
 async function saveTasks() {
     const userId = auth.currentUser.uid;
-    subjects.forEach(async subject => {
+    for (const subject of subjects) {
         const tasks = [];
         const taskElements = document.querySelectorAll(`#${subject.name} .task`);
         taskElements.forEach(taskElement => {
@@ -46,7 +45,7 @@ async function saveTasks() {
             tasks.push({ name: taskName, completed, completionTime });
         });
         await db.collection('tasks').doc(userId).collection(subject.name).doc('tasks').set({ tasks });
-    });
+    }
 }
 
 async function loadTasks() {
