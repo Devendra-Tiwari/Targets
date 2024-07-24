@@ -1,8 +1,3 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "firebase/auth";
-import { getFirestore, collection, doc, setDoc, getDocs } from "firebase/firestore";
-
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyALPWJxAtZ2uKxMAd5A6JNIpG5CStRRv3I",
@@ -15,9 +10,9 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 // Define subjects
 const subjects = [
@@ -50,7 +45,7 @@ async function saveTasks() {
             const completionTime = taskElement.dataset.completionTime || null;
             tasks.push({ name: taskName, completed, completionTime });
         });
-        await setDoc(doc(db, 'tasks', userId, subject.name), { tasks });
+        await db.collection('tasks').doc(userId).collection(subject.name).doc('tasks').set({ tasks });
     });
 }
 
@@ -79,10 +74,10 @@ async function loadTasks() {
         subjectTitle.appendChild(addTaskIcon);
         subjectDiv.appendChild(subjectTitle);
 
-        const docRef = doc(db, 'tasks', userId, subject.name);
-        const docSnap = await getDocs(docRef);
+        const docRef = db.collection('tasks').doc(userId).collection(subject.name).doc('tasks');
+        const docSnap = await docRef.get();
         
-        const data = docSnap.exists() ? docSnap.data().tasks : subject.tasks.map(task => ({ name: task, completed: false }));
+        const data = docSnap.exists ? docSnap.data().tasks : subject.tasks.map(task => ({ name: task, completed: false }));
 
         data.forEach(task => addTask(subjectDiv, task.name, task.completed, task.completionTime));
 
@@ -165,8 +160,8 @@ previousDayBtn.addEventListener('click', () => changeDay(-1));
 nextDayBtn.addEventListener('click', () => changeDay(1));
 
 signInBtn.addEventListener('click', () => {
-    const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider)
+    const provider = new firebase.auth.GoogleAuthProvider();
+    firebase.auth().signInWithPopup(provider)
         .then((result) => {
             console.log("User signed in:", result.user.displayName);
             loadTasks(); // Load tasks after sign-in
@@ -176,7 +171,7 @@ signInBtn.addEventListener('click', () => {
         });
 });
 
-onAuthStateChanged(auth, (user) => {
+firebase.auth().onAuthStateChanged((user) => {
     if (user) {
         loadTasks();
     }
