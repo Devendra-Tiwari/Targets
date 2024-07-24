@@ -1,18 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Study Sessions</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Manager</title>
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
+    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyALPWJxAtZ2uKxMAd5A6JNIpG5CStRRv3I",
+      authDomain: "targets-3c17d.firebaseapp.com",
+      projectId: "targets-3c17d",
+      storageBucket: "targets-3c17d.appspot.com",
+      messagingSenderId: "419504485558",
+      appId: "1:419504485558:web:f1697477f8d1c102686217",
+      measurementId: "G-MKZKZM40YG"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getFirestore(app);
+
+    // Example function to add a task
+    async function addTask(subject, taskName) {
+      try {
+        const docRef = await addDoc(collection(db, "tasks"), {
+          subject: subject,
+          taskName: taskName,
+          completed: false,
+          completionTime: null
+        });
+        console.log("Task added with ID: ", docRef.id);
+      } catch (e) {
+        console.error("Error adding task: ", e);
+      }
+    }
+
+    // Example function to fetch tasks
+    async function fetchTasks() {
+      const querySnapshot = await getDocs(collection(db, "tasks"));
+      querySnapshot.forEach((doc) => {
+        console.log(doc.id, " => ", doc.data());
+        // Render tasks
+      });
+    }
+
+    // Call fetchTasks on page load
+    document.addEventListener('DOMContentLoaded', fetchTasks);
+  </script>
 </head>
 <body>
-    <div class="container">
-        <h1><span id="currentDate"></span></h1>
-        <button id="previousDayBtn">Previous Day</button>
-        <button id="nextDayBtn">Next Day</button>
-        <div id="subjectsContainer"></div>
-    </div>
-    <script src="script.js"></script>
+  <h1>Task Manager</h1>
+  <!-- Your HTML content here -->
 </body>
 </html>
